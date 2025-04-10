@@ -1,6 +1,7 @@
 # Solvent Extraction Optimization Script
 # %pip install ax-platform matplotlib
 import matplotlib.pyplot as plt
+import pandas as pd
 from ax.service.ax_client import AxClient, ObjectiveProperties
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401, needed for 3d projection
 
@@ -113,17 +114,23 @@ df = ax_client.get_trials_data_frame()
 print("\nResults summary:")
 print(df)
 
-# Get best parameters
-best_parameters, values = ax_client.get_best_parameters()
-print("\nBest parameters:")
-for param, value in best_parameters.items():
-    print(f"{param}: {value}")
-print("\nDerived parameter:")
-print(f"organic_composition: {1.0 - best_parameters['aqueous_composition']}")
+# Plot results
+objectives = ax_client.objective_names
 
-print("\nBest outcomes:")
-for metric, value in values.items():
-    print(f"{metric}: {value}")
+pareto = ax_client.get_pareto_optimal_parameters(use_model_predictions=False)
+pareto_data = [p[1][0] for p in pareto.values()]
+pareto = pd.DataFrame(pareto_data).sort_values(objectives[0])
+# # Get best parameters
+# best_parameters, values = ax_client.get_best_parameters()
+# print("\nBest parameters:")
+# for param, value in best_parameters.items():
+#     print(f"{param}: {value}")
+# print("\nDerived parameter:")
+# print(f"organic_composition: {1.0 - best_parameters['aqueous_composition']}")
+
+# print("\nBest outcomes:")
+# for metric, value in values.items():
+#     print(f"{metric}: {value}")
 
 # Plot recovery vs purity
 plt.figure(figsize=(10, 8))
